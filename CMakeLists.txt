@@ -109,7 +109,7 @@ set(
 #
 #
 set (
-    EMCC_LINKER_FLAGS__WASM
+    EMCC_LINKER_FLAGS___BASE
     #
     # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
     "-Wall -std=c++11 \
@@ -126,7 +126,6 @@ set (
 -s NO_DYNAMIC_EXECUTION=1 \
 -s NODEJS_CATCH_EXIT=0 \
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\"]' \
--s WASM=1 \
 -Oz \
 -s ALLOW_MEMORY_GROWTH=1 \
 "
@@ -138,16 +137,39 @@ set (
     # -g \
 )
 
+set (
+    EMCC_LINKER_FLAGS__WASM
+    "${EMCC_LINKER_FLAGS___BASE} \
+-s WASM=1 \
+"
+)
+
+set (
+    EMCC_LINKER_FLAGS__ASMJS
+    "${EMCC_LINKER_FLAGS___BASE} \
+-s WASM=0 \
+"
+)
+
+
 message(STATUS "EMCC_LINKER_FLAGS__WASM ${EMCC_LINKER_FLAGS__WASM}")
+message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
 #
 add_executable(MyMoneroCoreCpp_WASM ${SRC_FILES})
+add_executable(MyMoneroCoreCpp_ASMJS ${SRC_FILES})
 #
 set_target_properties(MyMoneroCoreCpp_WASM PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+set_target_properties(MyMoneroCoreCpp_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
 #
 # set_target_properties(MyMoneroCoreCpp_WASM PROPERTIES SUFFIX ".html")
 #
 target_link_libraries(
     MyMoneroCoreCpp_WASM
+    #
+    ${log-lib}
+)
+target_link_libraries(
+    MyMoneroCoreCpp_ASMJS
     #
     ${log-lib}
 )
